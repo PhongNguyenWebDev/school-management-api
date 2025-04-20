@@ -10,31 +10,44 @@ namespace SchoolManagementApi.Data
         }
 
         // Định nghĩa các DbSet cho các entity của bạn
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Class> Classes { get; set; }
         public DbSet<Student> Students { get; set; }
-        // Thêm các DbSet khác cho các model khác (ví dụ: Courses, Teachers, Classes, etc.)
-        // public DbSet<Course> Courses { get; set; }
-        // public DbSet<Teacher> Teachers { get; set; }
-        // public DbSet<Class> Classes { get; set; }
-        // public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
+        public DbSet<Teacher> Teachers { get; set; }
+        public DbSet<ClassSubjectTeacher> ClassSubjectTeachers { get; set; }
+        public DbSet<Grade> Grades { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Cấu hình các relationship, khóa chính/phụ, ràng buộc dữ liệu (nếu cần)
-            // Ví dụ:
-            // modelBuilder.Entity<Enrollment>()
-            //     .HasKey(e => new { e.StudentId, e.CourseId });
+            // Cấu hình quan hệ nhiều-nhiều thông qua bảng trung gian ClassSubjectTeacher
+            modelBuilder.Entity<ClassSubjectTeacher>()
+                .HasOne(cst => cst.Class)
+                .WithMany(c => c.ClassSubjectTeachers)
+                .HasForeignKey(cst => cst.ClassId);
 
-            // modelBuilder.Entity<Enrollment>()
-            //     .HasOne(e => e.Student)
-            //     .WithMany(s => s.Enrollments)
-            //     .HasForeignKey(e => e.StudentId);
+            modelBuilder.Entity<ClassSubjectTeacher>()
+                .HasOne(cst => cst.Subject)
+                .WithMany(s => s.ClassSubjectTeachers)
+                .HasForeignKey(cst => cst.SubjectId);
 
-            // modelBuilder.Entity<Enrollment>()
-            //     .HasOne(e => e.Course)
-            //     .WithMany(c => c.Enrollments)
-            //     .HasForeignKey(e => e.CourseId);
+            modelBuilder.Entity<ClassSubjectTeacher>()
+                .HasOne(cst => cst.Teacher)
+                .WithMany(t => t.ClassSubjectTeachers)
+                .HasForeignKey(cst => cst.TeacherId);
+
+            modelBuilder.Entity<Grade>()
+                .HasOne(g => g.Student)
+                .WithMany(s => s.Grades)
+                .HasForeignKey(g => g.StudentId);
+
+            modelBuilder.Entity<Grade>()
+                .HasOne(g => g.ClassSubjectTeacher)
+                .WithMany(cst => cst.Grades)
+                .HasForeignKey(g => g.ClassSubjectTeacherId);
         }
     }
 }

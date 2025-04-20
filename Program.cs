@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration; // Để làm việc với IConfigurat
 using Microsoft.Extensions.Hosting; // Để sử dụng env.IsDevelopment()
 using SchoolManagementApi.Data; // Namespace của ApplicationDbContext
 using SchoolManagementApi.Data.SeedData; // Namespace của DbInitializer
+using SchoolManagementApi.Services;
+using SchoolManagementApi.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +20,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Đăng ký các services (nếu bạn có)
-// builder.Services.AddScoped<IStudentService, StudentService>();
-// builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<IGradeRepository, GradeRepository>();
+builder.Services.AddScoped<IGradeService, GradeService>();
 
 var app = builder.Build();
 

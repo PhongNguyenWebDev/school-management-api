@@ -3,11 +3,13 @@ using SchoolManagementApi.Models;
 using SchoolManagementApi.DTOs;
 using Microsoft.EntityFrameworkCore;
 using SchoolManagementApi.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolManagementApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class GradeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

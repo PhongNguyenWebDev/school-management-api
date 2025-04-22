@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using SchoolManagementApi.DTOs;
 using SchoolManagementApi.Services.Interfaces;
 
@@ -6,6 +7,7 @@ namespace SchoolManagementApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class TeacherController : ControllerBase
     {
         private readonly ITeacherService _service;

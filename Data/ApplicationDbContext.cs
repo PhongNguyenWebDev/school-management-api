@@ -42,7 +42,8 @@ namespace SchoolManagementApi.Data
             modelBuilder.Entity<Grade>()
                 .HasOne(g => g.Student)
                 .WithMany(s => s.Grades)
-                .HasForeignKey(g => g.StudentId);
+                .HasForeignKey(g => g.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Grade>()
                 .HasOne(g => g.ClassSubjectTeacher)

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration; // Đảm bảo thêm namespace này
+// using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/test")]
+// [Authorize]
 public class TestConnectionController : ControllerBase
 {
     private readonly IConfiguration _configuration;

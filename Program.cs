@@ -5,8 +5,15 @@ using Microsoft.Extensions.Configuration; // Để làm việc với IConfigurat
 using Microsoft.Extensions.Hosting; // Để sử dụng env.IsDevelopment()
 using SchoolManagementApi.Data; // Namespace của ApplicationDbContext
 using SchoolManagementApi.Data.SeedData; // Namespace của DbInitializer
-using SchoolManagementApi.Services;
-using SchoolManagementApi.Repositories;
+using SchoolManagementApi.Services.Interfaces;
+using SchoolManagementApi.Services.Implementations;
+using SchoolManagementApi.Repositories.Interfaces;
+using SchoolManagementApi.Repositories.Implementations;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +42,48 @@ builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 builder.Services.AddScoped<IGradeService, GradeService>();
 
+builder.Services.AddAutoMapper(typeof(Program));
+
+// Thêm cấu hình JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"];
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
+    };
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new Microsoft.AspNetCore.Mvc.Versioning.UrlSegmentApiVersionReader();
+});
+
 var app = builder.Build();
 
 // Cấu hình HTTP request pipeline.
@@ -46,8 +95,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAll");
+
+app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseRouting(); // Đảm bảo có UseRouting()
 
 app.MapControllers();
 
